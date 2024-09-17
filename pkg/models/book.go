@@ -45,6 +45,10 @@ func GetBookById(id int64) *Book {
 	return &book
 }
 
+func UpdateBookById(b *Book, id int64) error {
+	return db.Table((Book{}.TableName())).Where("id=?", id).Update(b).Error
+}
+
 func DeleteBookById(id int64) error {
 	return db.Table((Book{}.TableName())).Where("id=?", id).Delete(nil).Error
 }

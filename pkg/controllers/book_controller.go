@@ -2,9 +2,13 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"main/pkg/models"
 	"main/pkg/utils"
 	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 func GetBooks(w http.ResponseWriter, r *http.Request) {
@@ -26,7 +30,42 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// func GetBook(w http.ResponseWriter, r *http.Request) {
-// 	vars := mux.Vars(r)
-// 	bookId := vars["bookId"]
-// }
+func GetBook(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	bookId := vars["bookId"]
+	id, err := strconv.ParseInt(bookId, 0, 0)
+	if err != nil {
+		fmt.Println("Error while parsing the id")
+		return
+	}
+	bookDetails := models.GetBookById(id)
+	res, _ := json.Marshal(bookDetails)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(res)
+}
+
+func UpdateBook(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	bookId := vars["bookId"]
+	id, err := strconv.ParseInt(bookId, 0, 0)
+	if err != nil {
+		fmt.Println("Error while parsing the id")
+		return
+	}
+
+	newBook := &models.Book{}
+	utils.ParseBody(r, newBook)
+
+	err = models.UpdateBookById(newBook, id)
+	if err != nil {
+		fmt.Println("Error while updating the book details")
+		return
+	}
+
+	res, _ := json.Marshal(newBook)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(res)
+}
